@@ -1,196 +1,158 @@
-# E-commerce Customer Analytics
+# 🛒 Online Retail E-commerce Analytics
 
-Analyze real UK-based online retail transactions to deliver actionable insights on customer behavior and sales performance.
+End-to-end pipeline to clean, analyze, and segment 500 K+ UK online retail transactions using Python, SQL, and Power BI—showcasing real-world data expertise without a formal degree.
 
-## Table of Contents
-1. [Goals](#goals)  
-2. [Installation](#installation)  
-3. [Dataset](#dataset)  
-4. [Project Structure](#project-structure)  
-5. [Data Cleaning](#data-cleaning)  
-6. [RFM Segmentation](#rfm-segmentation)  
-7. [Key Visualizations](#key-visualizations)  
-8. [Interactive Dashboard](#interactive-dashboard)  
-9. [Usage](#usage)  
-10. [Requirements](#requirements)  
-11. [Contributing](#contributing)  
-12. [License & Contact](#license--contact)
 
----
+## 📋 Table of Contents
 
-## Goals
-
-- Analyze sales patterns over time and across regions.  
-- Segment customers with RFM (Recency, Frequency, Monetary) model.  
-- Create static and interactive visualizations of business KPIs.  
-- Build a Streamlit app for dynamic data exploration.
+1. [Project Overview](#project-overview)  
+2. [Dataset](#dataset)  
+3. [Project Structure](#project-structure)
+4. [Environment & Setup](#environment--setup)  
+5. [Notebook Workflows](#notebook-workflows)  
+6. [Supplementary Analysis](#supplementary-analysis)  
+7. [Interactive Dashboard](#interactive-dashboard)  
+8. [Key Insights & Actions](#key-insights--actions)  
+9. [PDF & Screenshot](#pdf--screenshot)  
+10. [Contributing & Contact](#contributing--contact)  
+11. [License](#license)  
 
 ---
 
-## Installation
+## Project Overview
 
-```bash
-git clone https://github.com/your-username/ecommerce-customer-analytics.git
-cd ecommerce-customer-analytics
-python3 -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
+Simulate the role of a business analyst for a UK e-commerce retailer by:
+
+- **Cleaning & Preparing** 500 K+ raw transactions for reliable analysis  
+- **Exploring** key sales patterns (monthly trends, top products, country breakdown)  
+- **Segmenting Customers** with RFM (Champions, Loyal, At Risk, etc.)  
+- **Building** an interactive Power BI dashboard with dynamic filters  
+- **Delivering** 5 actionable insights to guide targeted marketing and ROI  
+
+---
 
 ## Dataset
 
-- **Source**: UCI Machine Learning Repository – Online Retail Dataset  
-- **Link**: [https://archive.ics.uci.edu/ml/datasets/Online+Retail](https://archive.ics.uci.edu/ml/datasets/Online+Retail)  
-- **Description**:  
-  This dataset contains all transactions occurring between 01/12/2010 and 09/12/2011 for a UK-based and registered online retailer.  
-- **Records**: ~541,909 transactions  
-- **Fields** include:
-  - `InvoiceNo`: Invoice number (cancellations marked with "C")  
-  - `StockCode`: Product code  
-  - `Description`: Product name  
-  - `Quantity`: Number of items per invoice  
-  - `InvoiceDate`: Timestamp of transaction  
-  - `UnitPrice`: Product price per unit  
-  - `CustomerID`: Unique customer identifier  
-  - `Country`: Customer’s country  
-
+- **Source:** UCI Machine Learning Repository – [Online Retail](https://archive.ics.uci.edu/ml/datasets/Online+Retail)  
+- **Period:** Dec 2010 to Dec 2011 (1 year)  
+- **Records:** ~541 909 transactions  
+- **Fields:**
+  - `InvoiceNo` (string): transaction ID; “C” prefix = cancellation  
+  - `StockCode` (string): product code  
+  - `Description` (string): product name  
+  - `Quantity` (integer): units sold  
+  - `InvoiceDate` (datetime): timestamp  
+  - `UnitPrice` (float): price per unit (GBP)  
+  - `CustomerID` (integer): unique customer  
+  - `Country` (string): customer location
+  
 ## Project Structure
 
-```
-    ├── data/
-    │ ├── Online Retail.xlsx # Raw dataset
-    │ └── cleaned_retail.csv # After cleaning
-    ├── notebooks/
-    │ ├── 01_cleaning.ipynb # Data cleaning steps
-    │ ├── 02_rfm.ipynb # RFM calculation & scoring
-    │ └── 04_visualizations.ipynb # Static visualizations
-    ├── dashboards/
-    │ └── app.py # Streamlit interactive dashboard
-    ├── sql/
-    │ └── analysis.sql # Optional SQL queries
-    ├── requirements.txt # Python dependencies
-    └── README.md # Project overview
-```
+   ```text
+ecommerce-customer-analytics/
+├─ data/
+│  ├─ raw/                   # original Excel download
+│  └─ processed/             # cleaned_retail.csv, rfm_segments.csv
+├─ notebooks/
+│  ├─ 01_eda.ipynb           # cleaning & EDA → cleaned_retail.csv
+│  └─ 02_rfm_segmentation.ipynb  # RFM scoring → rfm_segments.csv
+├─ sql/
+│  ├─ analysis.sql           # ad-hoc exploration queries
+│  └─ outputs/               # CSV exports of each query
+├─ excel/
+│  └─ sql_dashboard.xlsx     # pivot tables & Pareto charts
+├─ dashboards/
+│  └─ ecom_rfm_report.pbix   # Power BI report file
+├─ docs/
+│  ├─ Customers_RFM.png      # example screenshot
+│  ├─ dashboard_preview.png  # full report PDF
+│  └─ dashboard.pdf          # full report PDF
+├─ requirements.txt          # Python dependencies for notebooks
+└─ README.md                 # this file
+   ```
 
-This structure separates data processing, analysis, and interface layers to ensure modularity and clarity.
+## Environment & Setup
 
+1. **Clone the repo**  
+   ```bash
+   git clone https://github.com/josephuyana/ecommerce-customer-analytics.git
+   cd ecommerce-customer-analytics
+   ```
+2. **Create & activate a virtual environment**  
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate  
+   ```
+3. **Install Python dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Data Cleaning
+## Notebook Workflows
 
-The dataset required multiple preprocessing steps to ensure reliability for analysis:
+1. **01_eda.ipynb**  
+   - Load raw Excel → drop cancellations & nulls → compute `TotalPrice`  
+   - EDA: monthly trends, top products, country revenue  
+   - → exports `data/processed/cleaned_retail.csv`
 
-- ✅ **Removed duplicate records** using `.drop_duplicates()`.  
-- ✅ **Filtered cancelled transactions**: invoices starting with `"C"` were excluded.  
-- ✅ **Excluded missing customer IDs** to focus only on identified buyers.  
-- ✅ **Saved cleaned dataset** as `data/cleaned_retail.csv` for reuse in analysis and dashboard development.
+2. **02_rfm_segmentation.ipynb**  
+   - Load `cleaned_retail.csv` → calculate Recency, Frequency, Monetary  
+   - Assign quintile scores & business-friendly segments  
+   - → exports `data/processed/rfm_segments.csv`
 
-All cleaning steps are fully documented and reproducible in `notebooks/01_cleaning.ipynb`.
+## Supplementary Analysis
 
-## RFM Segmentation
+- **SQL queries**:  
+  All ad-hoc exploration and aggregation lives in `sql/analysis.sql`, with each query’s CSV export in `sql/outputs/` (e.g. `top_products.csv`, `monthly_revenue.csv`).
 
-We used the RFM (Recency, Frequency, Monetary) model to segment customers based on purchasing behavior.
-
-### Steps:
-
-1. **Reference Date**: Set to one day after the last invoice date in the dataset.
-2. **Recency**: Number of days since the customer's last purchase.
-3. **Frequency**: Number of unique purchase events (`InvoiceNo`) per customer.
-4. **Monetary Value**: Total revenue generated by each customer (`UnitPrice × Quantity`).
-
-### Scoring:
-
-- Each metric was converted into a **percent-rank** and then mapped to a **quintile score** (1 to 5).
-- Recency was inverted (lower = better), so higher scores represent better recency.
-- Final segments were encoded as a 3-digit string (e.g., `'555'` = most recent, most frequent, highest spenders).
-- A total `RFM_Score` (sum of R, F, M) was also calculated to rank customers from 3 to 15.
-
-➡️ Output: All results are saved to `data/rfm_segments.csv`.  
-➡️ Code: See full implementation in `notebooks/02_rfm.ipynb`.
-
-## Key Visualizations
-
-The following charts were created to extract insights from the RFM segmentation:
-
-- 📊 **Top 10 RFM Segments + Other**: highlights the most populated customer segments and aggregates the rest into "Other" for clarity.
-- 📊 **RFM Score Distribution**: shows how customers are distributed by total RFM score (from 3 to 15).
-- 🔥 **Recency vs. Frequency Heatmap**: reveals average spend patterns by recency and frequency combinations.
-- 💰 **Top 5 Segments by Revenue Share**: identifies customer groups that generate the majority of revenue.
-- 📦 **Spend Distribution Boxplot**: visualizes variability in spending within the top 5 high-value segments.
-
-These visualizations are included in `notebooks/04_visualizations.ipynb` and were generated using Matplotlib and Seaborn.
+- **Excel pivots & charts**:  
+  Early KPI prototypes (Pareto, pivot tables by month/country) are in `excel/pivot_charts.xlsx`, demonstrating comfort with traditional BI tools.
 
 ## Interactive Dashboard
 
-We created an interactive dashboard using **Streamlit** to allow business users to explore the RFM data dynamically.
+- **Live Preview:**  
+  [![Dashboard Preview](docs/dashboard_preview.png)](https://app.powerbi.com/view?r=eyJrIjoiYWQzZTJjNWUtMTZiNy00ZDk4LWE2MTUtMjQ1ZDQ5ZDc5NWUzIiwidCI6ImQ2NDM4MDgyLWViOTgtNGMzZi04Mzk3LTVkYmRmZTQwMzZmZCIsImMiOjR9)
 
-### Features:
-- 🎛️ Filter by RFM segment
-- 👤 View detailed customer scores
-- 📊 Visual summary charts (e.g. RFM score counts)
-- 📥 Download segmented data (coming soon)
+- **Power BI Desktop (free):**  
+  1. Download & install from Microsoft.  
+  2. File → Open → `dashboards/ecom_rfm_report.pbix`
 
-### Launch the dashboard locally:
-```bash
-streamlit run dashboards/app.py
-```
-Note: Requires data/rfm_segments.csv to be already generated by the notebook 02_rfm.ipynb
+## Key Insights & Actions
 
-## Usage
+- **Champions (22.2 %) → 65.2 % of revenue**  
+  Action: Launch VIP loyalty perks (exclusive discounts, double points).
 
-Follow these steps to run the project end-to-end:
+- **Hibernating (24.6 %) → 5.8 % of revenue**  
+  Action: Send win-back emails with time-limited offers.
 
-1. 🧼 Run `notebooks/01_cleaning.ipynb`  
-   → Cleans the raw dataset and exports `cleaned_retail.csv`.
+- **Promising (6.3 %) → 4.9 orders avg, last purchase 137 days ago**  
+  Action: Run “We miss you” campaign with personalized product suggestions.
 
-2. 📊 Run `notebooks/02_rfm.ipynb`  
-   → Calculates RFM metrics, scores, and segments. Saves `rfm_segments.csv`.
+- **At Risk (14.5 %) → 3.3 % of revenue, 1.2 orders avg**  
+  Action: Offer cross-sell bundles and reward points within 30 days.
 
-3. 📈 Run `notebooks/04_visualizations.ipynb`  
-   → Generates key static charts to support business decisions.
+- **New Customers (0.97 %) → £388 avg spend, last purchase 7 days ago**  
+  Action: Start a 3-step onboarding drip (welcome → tutorial → recommendations).
 
-4. 💻 Launch the Streamlit app  
-   → Open `dashboards/app.py` to explore results interactively:
+## PDF & Screenshot
 
-```bash
-streamlit run dashboards/app.py
-```
+- 📄 [Download full dashboard (PDF)](docs/dashboard.pdf)  
+- ![RFM Overview](docs/Customers_RFM.png)
 
-## Requirements
+## Contributing & Contact
 
-Install the required Python packages using:
+Contributions, feedback and bug reports are welcome:
 
-```bash
-pip install -r requirements.txt
-```
+1. Fork this repo  
+2. Create a feature branch (`git checkout -b feature-name`)  
+3. Commit your changes (`git commit -m "Add feature"`)  
+4. Push to your branch (`git push origin feature-name`)  
+5. Open a Pull Request
 
-### Core Libraries Used
+**Contact:**  
+Joseph Uyana • [LinkedIn](https://www.linkedin.com/in/uyanajoseph/) • uyanajoseph@gmail.com  
 
-```text
-    pandas
-    numpy
-    matplotlib
-    seaborn
-    streamlit
-    openpyxl
-```
+## License
 
-## Contributing
-
-Contributions are welcome! To suggest improvements or submit fixes:
-
-1. Fork this repository  
-2. Create a new branch:  
-   ```bash
-    git checkout -b feature-name
-    git commit -m "Add new feature"
-    git push origin feature-name
-    ```
-## License & Contact
-
-- **License**: MIT  
-- **Author**: Joseph 
-- **Contact**: uyanajoseph@gmail.com
-- **Portfolio**: [My Portfolio](https://www.datascienceportfol.io/uyanajoseph)
-
-
+This project is licensed under the [MIT License](LICENSE).  
 
