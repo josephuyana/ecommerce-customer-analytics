@@ -1,6 +1,6 @@
 # 🛒 Online Retail E-commerce Analytics
 
-End-to-end pipeline to clean, analyze, and segment 500 K+ UK online retail transactions using Python, SQL, and Power BI—showcasing real-world data expertise without a formal degree.
+End-to-end pipeline to clean, analyze, and segment 500 K+ UK online retail transactions using Python, SQL, and Power BI—showcasing real-world data expertise.
 
 
 ## 📋 Table of Contents
